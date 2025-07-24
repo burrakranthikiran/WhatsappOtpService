@@ -1,6 +1,7 @@
 // index.js
 const express = require('express');
 const wppconnect = require('@wppconnect-team/wppconnect');
+const puppeteer = require('puppeteer');
 
 const app = express();
 app.use(express.json());
@@ -23,6 +24,9 @@ wppconnect
       console.log('Session Status: ', statusSession);
     },
     headless: true,
+    puppeteer: puppeteer,
+    
+
   })
   .then((client) => {
     clientInstance = client;
