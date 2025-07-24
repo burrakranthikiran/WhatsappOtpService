@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WhatsApp QR Code</title>
+</head>
+<body>
+  <h2>Scan QR with WhatsApp</h2>
+  <% if (qr) { %>
+    <img src="<%= qr %>" alt="QR Code" />
+  <% } else { %>
+    <p>QR Code not available yet. Please refresh.</p>
+  <% } %>
+</body>
+</html>
