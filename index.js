@@ -25,7 +25,9 @@ wppconnect
     },
     headless: true,
     puppeteer: puppeteer,
-    
+    puppeteerOptions: {
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    },
 
   })
   .then((client) => {
