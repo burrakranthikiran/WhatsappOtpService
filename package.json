@@ -10,9 +10,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@wppconnect-team/wppconnect": "^1.37.3",
+    "@wppconnect-team/wppconnect": "^1.37.5",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
-    "puppeteer": "^24.15.0"
+    "puppeteer": "^24.15.0",
+    "sharp": "0.32.6"
+  },
+  "overrides": {
+    "sharp": "0.32.6",
+    "@wppconnect-team/wppconnect": {
+      "sharp": "0.32.6"
+    }
   }
 }

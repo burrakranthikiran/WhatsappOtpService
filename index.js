@@ -1,4 +1,7 @@
 // index.js
+process.env.SHARP_IGNORE_PREBUILT_BINARY = '1';
+process.env.SHARP_IGNORE_GLOBAL_LIBVIPS = '1';
+process.env.SHARP_IGNORE_INSTALL = '1';
 const express = require('express');
 const wppconnect = require('@wppconnect-team/wppconnect');
 const puppeteer = require('puppeteer');
