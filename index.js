@@ -9,7 +9,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Load numbers from number.json
-const numberArray = JSON.parse(fs.readFileSync(path.join(__dirname, 'number.json'), 'utf8'));
+const numberArray = JSON.parse(fs.readFileSync(path.join(__dirname, 'phoneNumber/chirila_number.json'), 'utf8'));
 
 const app = express();
 app.use(express.json());
@@ -194,3 +194,4 @@ app.post('/send-test', async (req, res) => {
 app.listen(3000, () => {
   console.log('Server running at http://localhost:3000');
 });
+
