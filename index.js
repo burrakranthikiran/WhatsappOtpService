@@ -5,6 +5,11 @@ process.env.SHARP_IGNORE_INSTALL = '1';
 const express = require('express');
 const wppconnect = require('@wppconnect-team/wppconnect');
 const puppeteer = require('puppeteer');
+const fs = require('fs');
+const path = require('path');
+
+// Load numbers from number.json
+const numberArray = JSON.parse(fs.readFileSync(path.join(__dirname, 'number.json'), 'utf8'));
 
 const app = express();
 app.use(express.json());
@@ -159,22 +164,26 @@ app.post('/send', async (req, res) => {
 
 
 app.post('/send-test', async (req, res) => {
-  const { number, message } = req.body;
+  const { message } = req.body;
 
   if (!clientInstance) {
     return res.status(500).send({ error: 'WhatsApp not initialized' });
   }
 
-  if (!number || !message) {
+  if (!message) {
     return res.status(400).send({ error: 'number and message required' });
   }
 
   try {
-    for(let i = 0; i < 1000; i++) {
-    const formatted = number.includes('@c.us') ? number : number + '@c.us';
-      await clientInstance.sendText(formatted, "Count Number: " + i);
+    for(let i = 0; i < numberArray.length; i++) {
+      const number = numberArray[i];
+      const formatted = number.includes('@c.us') ? number : number + '@c.us';
+      console.log("formatted", formatted);
+      const count = i + 1;
+      // await clientInstance.sendText("91"+formatted, message);
+      await clientInstance.sendText("919966390235@c.us", "Count Number: " + count +" "+ "Send Number: " + number+ " " +"Message:" + message);
     }
-    res.send({ success: true, number, message });
+    res.send({ success: true, totalNumbers: numberArray.length, message });
   } catch (err) {
     console.error('Error sending message:', err);
     res.status(500).send({ error: 'Failed to send message' });
