@@ -9,8 +9,8 @@ const fs = require('fs');
 const path = require('path');
 
 // Load numbers from number.json
-const numberArray = JSON.parse(fs.readFileSync(path.join(__dirname, 'phoneNumber/chirila_number.json'), 'utf8'));
 
+let numberArray = [];
 const app = express();
 app.use(express.json());
 
@@ -59,6 +59,9 @@ wppconnect
     },
     statusFind: (statusSession, session) => {
       console.log('Session Status: ', statusSession);
+      if(statusSession === "inChat"){
+     
+      }
     },
     headless: true,
     puppeteer: puppeteer,
@@ -81,6 +84,7 @@ wppconnect
     await new Promise(resolve => setTimeout(resolve, 2000));
     isClientReady = true;
     console.log('WPPConnect client ready.');
+  
   })
   .catch((err) => {
     console.error('Error initializing WPPConnect:', err);
@@ -163,8 +167,30 @@ app.post('/send', async (req, res) => {
 });
 
 
-app.post('/send-test', async (req, res) => {
-  const { message } = req.body;
+app.post('/send-bulk', async (req, res) => {
+  const { message, fileName } = req.body;
+  if (!clientInstance) {
+    return res.status(500).send({ error: 'WhatsApp not initialized' });
+  }
+
+  if (!message) {
+    return res.status(400).send({ error: 'number and message required' });
+  }
+   numberArray = JSON.parse(fs.readFileSync(path.join(__dirname, 'phoneNumber/'+fileName+".json"), 'utf8'));
+  bulkWhatsMessage(message);
+  res.send({ 
+    success: true, 
+    data: "BroadCast Started"
+  });
+});
+
+
+
+async function bulkWhatsMessage(message) {
+  // TODO: implement bulk messaging flow
+  console.log("Working", "Status");
+
+   
 
   if (!clientInstance) {
     return res.status(500).send({ error: 'WhatsApp not initialized' });
@@ -181,17 +207,26 @@ app.post('/send-test', async (req, res) => {
       console.log("formatted", formatted);
       const count = i + 1;
       // await clientInstance.sendText("91"+formatted, message);
-      await clientInstance.sendText("919966390235@c.us", "Count Number: " + count +" "+ "Send Number: " + number+ " " +"Message:" + message);
+      if(count === numberArray.length){
+        await clientInstance.sendText(
+          "919966390235@c.us",
+          `Number of Messages Delivered: ${count} | Message: ${message}`
+        );
+      }
+
     }
-    res.send({ success: true, totalNumbers: numberArray.length, message });
+    return "SEND"
+    // res.send({ success: true, totalNumbers: numberArray.length, message });
   } catch (err) {
     console.error('Error sending message:', err);
-    res.status(500).send({ error: 'Failed to send message' });
+    
   }
-});
+}
 
 // ✅ Start server
-app.listen(3000, () => {
+app.listen(3000, async() => {
   console.log('Server running at http://localhost:3000');
+  
 });
+
 
