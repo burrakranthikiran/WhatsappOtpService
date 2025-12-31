@@ -49,8 +49,20 @@ const sendTextSafely = async (client, to, message, retries = 3) => {
       await client.sendText(to, message);
       return true;
     } catch (err) {
-      if (attempt < retries) await sleep(3000 * (attempt + 1));
-      else throw err;
+      console.error(`❌ Send attempt ${attempt + 1}/${retries + 1} failed:`, err.message);
+      if (err.message.includes('detached Frame') || err.message.includes('Target closed')) {
+        // Browser frame issue - might need to reconnect
+        if (attempt < retries) {
+          console.log('⏳ Waiting before retry...');
+          await sleep(5000 * (attempt + 1));
+        } else {
+          throw new Error('Browser connection lost. Please restart the service.');
+        }
+      } else if (attempt < retries) {
+        await sleep(3000 * (attempt + 1));
+      } else {
+        throw err;
+      }
     }
   }
 };
@@ -100,11 +112,29 @@ app.get('/qr', (req, res) => {
 
 /* ================= SINGLE SEND ================= */
 app.post('/send', async (req, res) => {
-  const { number, message } = req.body;
-  if (!clientInstance || !isClientReady) return res.status(500).send({ error: 'Not ready' });
-  const jid = number.includes('@c.us') ? number : `${number}@c.us`;
-  await sendTextSafely(clientInstance, jid, message);
-  res.send({ success: true });
+  try {
+    const { number, message } = req.body;
+    
+    if (!number || !message) {
+      return res.status(400).send({ error: 'Number and message are required' });
+    }
+    
+    if (!clientInstance || !isClientReady) {
+      console.log('❌ Client not ready. isClientReady:', isClientReady, 'clientInstance:', !!clientInstance);
+      return res.status(500).send({ error: 'WhatsApp client not ready' });
+    }
+    
+    const jid = number.includes('@c.us') ? number : `${number}@c.us`;
+    console.log('📤 Sending message to:', jid);
+    
+    await sendTextSafely(clientInstance, jid, message);
+    
+    console.log('✅ Message sent successfully to:', jid);
+    res.send({ success: true });
+  } catch (error) {
+    console.error('❌ Error in /send endpoint:', error.message);
+    res.status(500).send({ error: error.message || 'Failed to send message' });
+  }
 });
 
 /* ================= BULK SEND (OLD) ================= */
@@ -210,6 +240,7 @@ app.post('/send-bulk-scheduled', async (req, res) => {
 });
 
 /* ================= SERVER ================= */
-app.listen(3000, () => {
-  console.log('🚀 Server running at http://localhost:3000');
+app.listen(3000, '0.0.0.0', () => {
+  console.log('🚀 Server running at http://0.0.0.0:3000');
 });
+
